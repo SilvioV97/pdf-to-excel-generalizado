@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Upload, FileSpreadsheet, CheckCircle2, AlertCircle, ChevronRight, Download, Wand2 } from 'lucide-react';
 import { extractPdfData, detectTables } from './utils/PdfProcessor';
 import { exportToExcel } from './utils/ExcelExporter';
+import { banks, DEFAULT_BANK } from './configs/banks';
 
 function App() {
     const [file, setFile] = useState(null);
@@ -13,6 +14,9 @@ function App() {
     const [availableHeaders, setAvailableHeaders] = useState([]);
     const [processingError, setProcessingError] = useState(null);
     const [previewData, setPreviewData] = useState([]);
+    const [selectedBankKey, setSelectedBankKey] = useState(DEFAULT_BANK);
+
+    const activeBankConfig = banks[selectedBankKey];
 
     const handleFileUpload = async (e) => {
         const uploadedFile = e.target.files[0];
@@ -31,7 +35,7 @@ function App() {
             await new Promise(r => setTimeout(r, 1200));
 
             const data = await extractPdfData(uploadedFile);
-            const detectedTables = detectTables(data);
+            const detectedTables = detectTables(data, activeBankConfig);
 
             if (detectedTables.length === 0) {
                 throw new Error('No se detectaron tablas claras. Intenta con otro PDF o verifica el formato.');
@@ -48,41 +52,7 @@ function App() {
         }
     };
 
-    const TARGET_HEADERS = [
-        'FECHA OPER.',
-        'FECHA VALOR',
-        'DESCRIPCION',
-        'OFICINA',
-        'CAN',
-        'N° OPER.',
-        'CARGO/ABONO',
-        'ITF',
-        'SALDO CONTABLE'
-    ];
-
-    // Normalize a single header string to the target schema
-    const normalizeHeader = (h) => {
-        const val = (h || '').toString().trim().toUpperCase().replace(/\s+/g, ' ');
-        if (val.includes('FECHA') && val.includes('VALOR')) return 'FECHA VALOR';
-        if (val.includes('FECHA') && (val.includes('OPER') || val.includes('F.'))) return 'FECHA OPER.';
-        if (val === 'VALOR') return 'FECHA VALOR';
-        if (val === 'OPER.' || val === 'OPER') return 'FECHA OPER.';
-        if (val === 'CONTABLE') return 'SALDO CONTABLE';
-
-        // Fallback for generic Fecha
-        if (val.includes('FECHA')) return 'FECHA OPER.';
-
-        if (val.includes('DESCRIP') || val.includes('CONCEPTO')) return 'DESCRIPCION';
-        if ((val.includes('N°') || val.includes('NRO') || val.includes('NUM')) && (val.includes('OPER') || val.includes('OP'))) return 'N° OPER.';
-        if (val.includes('CARGO') || val.includes('ABONO')) return 'CARGO/ABONO';
-        if (val.includes('ITF')) return 'ITF';
-        if (val.includes('OFICINA')) return 'OFICINA';
-        if (val.includes('CAN')) return 'CAN';
-        if (val.includes('SALDO') || val.includes('CONTABLE')) return 'SALDO CONTABLE';
-        return val;
-    };
-
-    const normalizeHeaderArr = (headerArr) => (headerArr || []).map(normalizeHeader);
+    const normalizeHeaderArr = (headerArr) => (headerArr || []).map(activeBankConfig.normalizeHeader);
 
     const goToHeaderSelection = () => {
         // Collect unique normalized headers from selected tables
@@ -94,14 +64,14 @@ function App() {
         });
         // Show only target headers that were detected (in canonical order)
         const detected = new Set(headerSet);
-        const available = TARGET_HEADERS.filter(h => detected.has(h));
+        const available = activeBankConfig.schema.filter(h => detected.has(h));
         setAvailableHeaders(available);
         setSelectedHeaders(available); // pre-select all valid ones
         setStep(2.5);
     };
 
     const goToFinalPreview = () => {
-        const activeHeaders = TARGET_HEADERS.filter(h => selectedHeaders.includes(h));
+        const activeHeaders = activeBankConfig.schema.filter(h => selectedHeaders.includes(h));
         const combinedData = [activeHeaders];
 
         tables
@@ -192,6 +162,32 @@ function App() {
 
                 {step === 1 && (
                     <div className="upload-section">
+                        <div style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+                            <span style={{ color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Banco Origen</span>
+                            <select
+                                value={selectedBankKey}
+                                onChange={(e) => setSelectedBankKey(e.target.value)}
+                                disabled={loading}
+                                style={{
+                                    appearance: 'none',
+                                    padding: '0.8rem 2.5rem 0.8rem 1.25rem',
+                                    borderRadius: '12px',
+                                    background: 'rgba(0,0,0,0.5)',
+                                    border: '1px solid var(--primary)',
+                                    color: 'white',
+                                    fontSize: '1rem',
+                                    fontWeight: '600',
+                                    cursor: loading ? 'not-allowed' : 'pointer',
+                                    outline: 'none',
+                                    transition: 'all 0.2s',
+                                    boxShadow: '0 0 15px rgba(99, 102, 241, 0.2)'
+                                }}
+                            >
+                                {Object.values(banks).map(b => (
+                                    <option key={b.id} value={b.id}>{b.name}</option>
+                                ))}
+                            </select>
+                        </div>
                         <label className="dropzone">
                             <input type="file" accept=".pdf" onChange={handleFileUpload} style={{ display: 'none' }} disabled={loading} />
                             {loading ? (
