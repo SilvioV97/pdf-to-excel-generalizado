@@ -1,7 +1,9 @@
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Use UNPKG CDN to guarantee the worker loads reliably in Vite production builds
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+// Load the worker from the local node_modules instead of depending on unpkg
+// Using new URL + import.meta.url is the standard Vite way to securely bundle workers
+const workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 export async function extractPdfData(file) {
     const arrayBuffer = await file.arrayBuffer();
