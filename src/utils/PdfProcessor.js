@@ -1,9 +1,9 @@
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Load the worker from the local node_modules instead of depending on unpkg
-// Using new URL + import.meta.url is the standard Vite way to securely bundle workers
-const workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
-pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
+// unpkg is currently being blocked by Vercel/experiencing outages.
+// Local Vite bundling of pdf.worker requires complex vite.config copy plugins.
+// The most robust industry standard is falling back to Cloudflare's cdnjs.
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
 export async function extractPdfData(file) {
     const arrayBuffer = await file.arrayBuffer();
