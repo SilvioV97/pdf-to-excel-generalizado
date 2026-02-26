@@ -3,9 +3,6 @@ import * as pdfjsLib from 'pdfjs-dist';
 // Use UNPKG CDN to guarantee the worker loads reliably in Vite production builds
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
-// The SCHEMA is now provided dynamically via bankConfig
-// const SCHEMA = [ ... ];
-
 export async function extractPdfData(file) {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -43,9 +40,6 @@ function groupIntoRows(items, tolerance = 6) {
     if (currentRow.length > 0) rows.push({ y: lastY, items: currentRow.sort((a, b) => a.x - b.x) });
     return rows;
 }
-
-// Normalization is now handled dynamically via bankConfig.normalizeHeader
-// function normalizeLabel(lbl) { ... }
 
 const DATE_REGEX = /^\d{2}[\/\-]\d{2}([\/\-]\d{2,4})?$/;
 
