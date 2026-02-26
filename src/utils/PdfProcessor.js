@@ -202,7 +202,6 @@ export function detectTables(pagesData, bankConfig) {
         // Pattern-based override for dates:
         // The first date found in a row should ideally go to slot 0, the second to slot 1.
         if (isDateLike) {
-            console.log(`Date Found! datesFoundInRow=${datesFoundInRow}, fh[0]=${finalHeaders[0]}, fh[1]=${finalHeaders[1]}`);
             if (datesFoundInRow === 0 && finalHeaders[0].includes('FECHA')) return 0;
             if (datesFoundInRow === 1 && finalHeaders[1].includes('FECHA')) return 1;
         }
