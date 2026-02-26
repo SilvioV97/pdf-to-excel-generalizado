@@ -227,7 +227,12 @@ export function detectTables(pagesData, bankConfig) {
         const rows = groupIntoRows(page.items);
         const dataRows = processPageRows(rows, getSlot, finalHeaders, bankConfig);
         if (dataRows.length > 0) {
-            tables.push({ page: page.pageNumber, rows: [finalHeaders, ...dataRows] });
+            if (bankConfig.transformOutput) {
+                const { transformedHeaders, transformedRows } = bankConfig.transformOutput(finalHeaders, dataRows);
+                tables.push({ page: page.pageNumber, rows: [transformedHeaders, ...transformedRows] });
+            } else {
+                tables.push({ page: page.pageNumber, rows: [finalHeaders, ...dataRows] });
+            }
         }
     }
     return tables;

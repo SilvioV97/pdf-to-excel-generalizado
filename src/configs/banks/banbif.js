@@ -4,7 +4,8 @@ export const banbifConfig = {
     name: 'BanBif',
     schema: [
         'FECHA OPER.', 'FECHA VALOR', 'DESCRIPCION',
-        'CARGO', 'ABONO', 'SALDO CONTABLE'
+        'OFICINA', 'CAN', 'N° OPER.', 'CARGO/ABONO',
+        'ITF', 'SALDO CONTABLE'
     ],
     footerKeywords: [
         'saldo anterior',
@@ -19,8 +20,12 @@ export const banbifConfig = {
         if (v === 'FECHA') return 'FECHA OPER.';
         if (v.includes('FECHA') && v.includes('VALOR')) return 'FECHA VALOR';
         if (v.includes('DESCRIP') || v.includes('CONCEPTO')) return 'DESCRIPCION';
-        if (v.includes('DÉBITO') || v.includes('DEBITO')) return 'CARGO';
-        if (v.includes('CRÉDITO') || v.includes('CREDITO')) return 'ABONO';
+
+        // Map both Débito and Crédito to the unified 'CARGO/ABONO' column
+        // We track their original positions using x coordinates to determine the sign later
+        if (v.includes('DÉBITO') || v.includes('DEBITO')) return 'CARGO/ABONO_NEGATIVE';
+        if (v.includes('CRÉDITO') || v.includes('CREDITO')) return 'CARGO/ABONO_POSITIVE';
+
         if (v.includes('SALDO')) return 'SALDO CONTABLE';
         return v;
     }

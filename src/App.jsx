@@ -18,6 +18,18 @@ function App() {
 
     const activeBankConfig = banks[selectedBankKey];
 
+    const UNIVERSAL_SCHEMA = [
+        'FECHA OPER.',
+        'FECHA VALOR',
+        'DESCRIPCION',
+        'OFICINA',
+        'CAN',
+        'N° OPER.',
+        'CARGO/ABONO',
+        'ITF',
+        'SALDO CONTABLE'
+    ];
+
     const handleFileUpload = async (e) => {
         const uploadedFile = e.target.files[0];
         if (!uploadedFile || uploadedFile.type !== 'application/pdf') {
@@ -64,14 +76,14 @@ function App() {
         });
         // Show only target headers that were detected (in canonical order)
         const detected = new Set(headerSet);
-        const available = activeBankConfig.schema.filter(h => detected.has(h));
+        const available = UNIVERSAL_SCHEMA.filter(h => detected.has(h));
         setAvailableHeaders(available);
         setSelectedHeaders(available); // pre-select all valid ones
         setStep(2.5);
     };
 
     const goToFinalPreview = () => {
-        const activeHeaders = activeBankConfig.schema.filter(h => selectedHeaders.includes(h));
+        const activeHeaders = UNIVERSAL_SCHEMA.filter(h => selectedHeaders.includes(h));
         const combinedData = [activeHeaders];
 
         tables
