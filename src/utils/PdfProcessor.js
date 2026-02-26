@@ -228,7 +228,7 @@ export function detectTables(pagesData, bankConfig) {
         const dataRows = processPageRows(rows, getSlot, finalHeaders, bankConfig);
         if (dataRows.length > 0) {
             if (bankConfig.transformOutput) {
-                const { transformedHeaders, transformedRows } = bankConfig.transformOutput(finalHeaders, dataRows);
+                const { transformedHeaders, transformedRows } = bankConfig.transformOutput(finalHeaders, dataRows, { isFirstTable: tables.length === 0 });
                 tables.push({ page: page.pageNumber, rows: [transformedHeaders, ...transformedRows] });
             } else {
                 tables.push({ page: page.pageNumber, rows: [finalHeaders, ...dataRows] });
