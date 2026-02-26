@@ -47,7 +47,7 @@ function groupIntoRows(items, tolerance = 6) {
 // Normalization is now handled dynamically via bankConfig.normalizeHeader
 // function normalizeLabel(lbl) { ... }
 
-const DATE_REGEX = /^\d{2}-\d{2}$/;
+const DATE_REGEX = /^\d{2}[\/\-]\d{2}([\/\-]\d{2,4})?$/;
 
 function isHeaderRowStrict(rowItems, bankConfig) {
     const texts = rowItems.map(i => i.text.toLowerCase());
@@ -154,7 +154,9 @@ export function detectTables(pagesData, bankConfig) {
             r1.forEach(item => {
                 const center = item.x + item.width / 2;
                 const cont = r2.find(ni => Math.abs((ni.x + ni.width / 2) - center) < 35);
-                const label = normalizeHeader(cont ? `${item.text} ${cont.text}` : item.text);
+                let label = normalizeHeader(cont ? `${item.text} ${cont.text}` : item.text);
+                if (!schema.includes(label)) label = normalizeHeader(item.text);
+
                 if (schema.includes(label)) {
                     if (!xMap[label]) xMap[label] = [];
                     xMap[label].push(item.x);
@@ -204,6 +206,7 @@ export function detectTables(pagesData, bankConfig) {
         // Pattern-based override for dates:
         // The first date found in a row should ideally go to slot 0, the second to slot 1.
         if (isDateLike) {
+            console.log(`Date Found! datesFoundInRow=${datesFoundInRow}, fh[0]=${finalHeaders[0]}, fh[1]=${finalHeaders[1]}`);
             if (datesFoundInRow === 0 && finalHeaders[0].includes('FECHA')) return 0;
             if (datesFoundInRow === 1 && finalHeaders[1].includes('FECHA')) return 1;
         }
