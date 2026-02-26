@@ -119,7 +119,7 @@ function App() {
                 let val = cell.trim();
 
                 // Auto-format numbers
-                if (['CARGO/ABONO', 'SALDO CONTABLE', 'ITF'].includes(header)) {
+                if (['CARGO/ABONO', 'CARGO', 'ABONO', 'SALDO CONTABLE', 'ITF'].includes(header)) {
                     const cleanNum = val.replace(/,/g, '').replace(/\s/g, '');
                     if (!isNaN(cleanNum) && cleanNum !== '' && cleanNum !== '-') {
                         return Number(cleanNum);
