@@ -3,7 +3,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 // unpkg is currently being blocked by Vercel/experiencing outages.
 // Local Vite bundling of pdf.worker requires complex vite.config copy plugins.
 // The most robust industry standard is falling back to Cloudflare's cdnjs.
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export async function extractPdfData(file) {
     const arrayBuffer = await file.arrayBuffer();
