@@ -1,8 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Upload, FileSpreadsheet, CheckCircle2, AlertCircle, ChevronRight, Download, Wand2 } from 'lucide-react';
 import { extractPdfData, detectTables } from './utils/PdfProcessor';
 import { exportToExcel } from './utils/ExcelExporter';
 import { banks, DEFAULT_BANK } from './configs/banks';
+
+const UNIVERSAL_SCHEMA = [
+    'FECHA OPER.',
+    'FECHA VALOR',
+    'DESCRIPCION',
+    'OFICINA',
+    'CAN',
+    'N° OPER.',
+    'CARGO/ABONO',
+    'ITF',
+    'SALDO CONTABLE'
+];
 
 function App() {
     const [file, setFile] = useState(null);
@@ -16,19 +28,7 @@ function App() {
     const [previewData, setPreviewData] = useState([]);
     const [selectedBankKey, setSelectedBankKey] = useState(DEFAULT_BANK);
 
-    const activeBankConfig = banks[selectedBankKey];
-
-    const UNIVERSAL_SCHEMA = [
-        'FECHA OPER.',
-        'FECHA VALOR',
-        'DESCRIPCION',
-        'OFICINA',
-        'CAN',
-        'N° OPER.',
-        'CARGO/ABONO',
-        'ITF',
-        'SALDO CONTABLE'
-    ];
+    const activeBankConfig = useMemo(() => banks[selectedBankKey], [selectedBankKey]);
 
     const handleFileUpload = async (e) => {
         const uploadedFile = e.target.files[0];
@@ -177,6 +177,7 @@ function App() {
                         <div style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
                             <span style={{ color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Banco Origen</span>
                             <select
+                                aria-label="Seleccionar Banco Origen"
                                 value={selectedBankKey}
                                 onChange={(e) => setSelectedBankKey(e.target.value)}
                                 disabled={loading}
